@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Enter Fae Realm</title>
+    <style>
+        body {
+            background: black;
+            color: #a2f9ff;
+            font-family: 'Comic Neue', cursive;
+            text-align: center;
+            padding: 100px;
+        }
+
+        input[type="password"] {
+            padding: 10px;
+            font-size: 1.2rem;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+            width: 300px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 12px;
+            background-color: #00e5ff;
+            color: black;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        .error {
+            color: red;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌌 Enter the Fae Realm</h1>
+    <form method="POST">
+        <input type="password" name="password" placeholder="Enter password..."><br>
+        <button type="submit">Enter</button>
+    </form>
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+</body>
+</html>

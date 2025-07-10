@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ board_name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,400;1,700&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Comic Neue', cursive;
+        background: linear-gradient(to bottom right, #ffe0f0, #ffeaff);
+        margin: 0;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        color: #ff69b4;
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px #ffc6d9;
+    }
+
+    .back {
+        display: block;
+        margin: 20px auto;
+        width: fit-content;
+        text-decoration: none;
+        color: white;
+        background-color: #ff69b4;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: bold;
+        box-shadow: 0 2px 6px #ffaddc;
+    }
+
+    .slideshow-button {
+        display: block;
+        margin: 0 auto 30px auto;
+        padding: 12px 24px;
+        background-color: #ff85c1;
+        color: white;
+        border: none;
+        border-radius: 15px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(255, 182, 193, 0.4);
+        transition: background-color 0.2s;
+    }
+
+    .slideshow-button:hover {
+        background-color: #ff61b0;
+    }
+
+    .gallery {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+        justify-content: center;
+    }
+
+    .item img {
+        width: 280px;
+        height: auto;
+        border-radius: 15px;
+        cursor: pointer;
+        border: 3px solid #ffc1e1;
+        box-shadow: 0 4px 10px rgba(255, 182, 193, 0.4);
+        transition: transform 0.2s;
+    }
+
+    .item img:hover {
+        transform: scale(1.05);
+    }
+
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 192, 203, 0.95);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .overlay img {
+        max-width: 90%;
+        max-height: 90%;
+        border-radius: 10px;
+        border: 4px solid white;
+        box-shadow: 0 4px 20px hotpink;
+    }
+
+    .nav-arrow {
+        position: absolute;
+        top: 50%;
+        font-size: 3rem;
+        color: white;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .nav-left {
+        left: 30px;
+    }
+
+    .nav-right {
+        right: 30px;
+    }
+</style>
+</head>
+<body>
+    <h1>🖼️ {{ board_name }}</h1>
+    {% if animal %}
+      <a class="back" href="/{{ animal }}">← Back to {{ animal.capitalize() }} boards</a>
+    {% else %}
+      <a class="back" href="/">← Back to all galleries</a>
+    {% endif %}
+
+    <div>
+        <span class="slideshow-button" onclick="startSlideshow()">▶️ Start Slideshow</span>
+    </div>
+
+    <div class="gallery">
+        {% for image in images %}
+        <div class="item">
+            <img src="/static/{{ board_name }}/{{ image }}" alt="{{ image }}" onclick="showLightbox('/static/{{ board_name }}/{{ image }}')">
+
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <form method="POST" action="/favorite">
+                    <input type="hidden" name="image_path" value="{{ board_name }}/{{ image }}">
+                    <button type="submit" style="font-size: 0.9rem; background: #ffe6f0; border: 2px solid #ff69b4; border-radius: 10px; padding: 5px 10px; cursor: pointer;">
+                        🌟 Favorite
+                    </button>
+                </form>
+                <form method="POST" action="/delete">
+                    <input type="hidden" name="image_path" value="{{ board_name }}/{{ image }}">
+                    <button type="submit" style="font-size: 1.1rem; background: #ffcccc; border: 2px solid red; border-radius: 10px; padding: 5px 10px; cursor: pointer; color: red;">
+                        ❌ Remove
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Lightbox overlay (single image view) -->
+    <div class="overlay" id="lightbox" onclick="hideOverlay()">
+        <img id="lightbox-img" src="" alt="full">
+    </div>
+
+    <!-- Slideshow overlay -->
+    <div class="overlay" id="slideshow" onclick="hideSlideshow()">
+        <span class="nav-arrow nav-left" onclick="prevSlide(event)">❮</span>
+        <img id="slideshow-img" src="" alt="slide">
+        <span class="nav-arrow nav-right" onclick="nextSlide(event)">❯</span>
+    </div>
+
+    <script>
+        // ==== Lightbox ====
+        function showLightbox(imgSrc) {
+            const overlay = document.getElementById('lightbox');
+            const image = document.getElementById('lightbox-img');
+            image.src = imgSrc;
+            overlay.style.display = 'flex';
+        }
+
+        function hideOverlay() {
+            document.getElementById('lightbox').style.display = 'none';
+        }
+
+        document.getElementById('lightbox-img').addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+
+        // ==== Slideshow ====
+        const images = [
+            {% for image in images %}
+            "/static/{{ board_name }}/{{ image }}",
+            {% endfor %}
+        ];
+
+        let currentSlide = 0;
+
+        function startSlideshow() {
+            currentSlide = 0;
+            showSlide(currentSlide);
+            document.getElementById('slideshow').style.display = 'flex';
+        }
+
+        function showSlide(index) {
+            const img = document.getElementById('slideshow-img');
+            img.src = images[index];
+        }
+
+        function nextSlide(event) {
+            event.stopPropagation();
+            currentSlide = (currentSlide + 1) % images.length;
+            showSlide(currentSlide);
+        }
+
+        function prevSlide(event) {
+            event.stopPropagation();
+            currentSlide = (currentSlide - 1 + images.length) % images.length;
+            showSlide(currentSlide);
+        }
+
+        function hideSlideshow() {
+            document.getElementById('slideshow').style.display = 'none';
+        }
+
+        // Prevent click-through on image
+        document.getElementById('slideshow-img').addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+    </script>
+</body>
+</html>

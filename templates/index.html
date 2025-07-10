@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kawaii Gallery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,400;1,700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Comic Neue', cursive;
+            background: linear-gradient(to bottom right, #ffe0f0, #ffeaff);
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ff69b4;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px #ffc6d9;
+        }
+
+        .back {
+            display: block;
+            margin: 0 auto 30px auto;
+            width: fit-content;
+            text-decoration: none;
+            color: white;
+            background-color: #ff69b4;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 6px #ffaddc;
+        }
+
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+        }
+
+        .item {
+            text-align: center;
+            background: #fff0fa;
+            border: 3px dashed #ffb6c1;
+            border-radius: 15px;
+            padding: 10px;
+            width: 180px;
+            box-shadow: 0 4px 8px rgba(255, 182, 193, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .item:hover {
+            transform: scale(1.05);
+        }
+
+        .item img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 2px solid #ffb6c1;
+        }
+
+        .item div {
+            margin-top: 10px;
+            color: #ff1493;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>🦄 Kawaii Gallery</h1>
+
+    {% if animal %}
+        <a class="back" href="/">← Back to animal selector</a>
+    {% endif %}
+
+    <div class="gallery">
+        {% for folder in folders %}
+        <div class="item">
+            <a href="/board/{{ folder.name }}">
+                <img src="/static/{{ folder.thumbnail }}" alt="{{ folder.label }}">
+                <div>{{ folder.label }}</div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
